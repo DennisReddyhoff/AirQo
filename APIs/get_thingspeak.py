@@ -3,6 +3,7 @@ import requests_cache
 import json
 import pandas as pd
 import time
+from datetime import datetime
 import fnmatch
 from IPython.core.display import clear_output
 requests_cache.install_cache()
@@ -38,19 +39,21 @@ def feed_data(sensor_id):
     return feeds
 
 def get_feeds(sensor_id):
-
-    new_end = ""  # Initialise variable to hold end date
+    
+    # Set end date to current time
+    new_end = datetime.now().strftime("%Y-%m-%d %H:%M:%SZ")  
     responses = []  # Initialise list of responses
     page_no = 1  # Page no. to keep count
 
     while True:
         # Outputs page number and then clears output
         print("Requesting page {}".format(page_no))
-        clear_output(wait=True)
+        #clear_output(wait=True)
         page_no += 1
         # Pull 8000 requests from thingspeak API and append to responses
         r = requests.get(
             "https://api.thingspeak.com/channels/{}/feeds.json?results={}&end={}".format(sensor_id, "8000", new_end))
+        print(r.from_cache)
         responses.append(r)
         # Return error code if API request fails
         if r.status_code != 200:
@@ -69,6 +72,8 @@ def get_feeds(sensor_id):
             # If response is got from cache, sleep to prevent API overload
             if getattr(responses, 'from_cache', False):
                 time.sleep(0.25)
+            print(new_end)
+               
                 
 def get_headers(feeds, responses):
 
