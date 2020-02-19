@@ -158,7 +158,38 @@ def get_date(response, pos):
     return date.strftime("%Y-%m-%d%%20%H:%M:%S")
 
 
-# In[ ]:
+def get_pollution(feeds_df):
+    
+    pm_df = feeds_df.drop(["entry_id", 
+                    "Latitude", 
+                    "Longitude", 
+                    "Battery Voltage", 
+                    "GpsData"], 
+                    axis=1)
+    
+    pm_df.columns = ["Sensor1 PM2.5",
+                     "Sensor1 PM10",
+                     "Sensor2 PM2.5",
+                     "Sensor2 PM10"]
+    pm_df = pm_df.reset_index()
+    pm_df["created_at"] = pd.to_datetime(pm_df["created_at"])
+    
+    values = [pm_df.columns[i] for i in range(1,len(pm_df.columns))]
+    pm_df = pm_df.melt(id_vars="created_at", 
+                       value_vars=values, 
+                       var_name="sensor")
+    
+    split = pm_df["sensor"].str.split(" ", 1, expand=True)
+    pm_df.insert(1, column="pollutiontype", value=split[1])
+    pm_df.insert(1, column="sensortype", value=split[0])
+    pm_df = pm_df.drop("sensor", axis=1)
+    
+    pm_df = pm_df.set_index(["created_at", 
+                         "sensortype", 
+                         "pollutiontype"])["value"].unstack()
+    pm_df.columns.name = ""
+    
+    return pm_df
 
 
 
