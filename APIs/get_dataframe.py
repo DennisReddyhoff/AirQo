@@ -8,9 +8,9 @@ import fnmatch
 from IPython.core.display import clear_output
 
 def build_df(sensor_id, cache="/"):
-    """Attempts to open the relevant .csv cache for the sensor as a dataframe and finds and
-    concatenates new records. If the cache doesn't exist, the dataframe is built and
-    output to csv.
+    """Attempts to open the relevant .csv cache for the sensor as a dataframe 
+    and finds and concatenates new records. If the cache doesn't exist, the 
+    dataframe is built and output to csv.
 
     Parameters
     ----------
@@ -27,15 +27,12 @@ def build_df(sensor_id, cache="/"):
                             index_col="created_at", low_memory=False)
         # Get last date
         last_entry = feeds.index[-1][:-1].replace("T", "%20")
-        try:
-            # Get feed data from last date until end
-            new_feeds = feed_data(sensor_id, last_entry)
-            # Concatenate and save df
-            feeds = pd.concat([feeds, new_feeds[1:]])
-            feeds.to_csv(cache + str(sensor_id) + ".csv")
-        except AssertionError:
-            # An assertion error is raised if there are no new records
-            print("No new records.")         
+        #try:
+        # Get feed data from last date until end
+        new_feeds = feed_data(sensor_id, last_entry)
+        # Concatenate and save df
+        feeds = pd.concat([feeds, new_feeds[1:]])
+        feeds.to_csv(cache + str(sensor_id) + ".csv")
     except FileNotFoundError:
         # If there is no existing feed, get data and save
         feeds = feed_data(sensor_id)
@@ -102,21 +99,18 @@ def get_responses(sensor_id, start_date = "", end_date = ""):
 
         # If less than 8000 observations are returned, all data points
         # are downloaded and loop ends with message to user
-        if len(r.json()["feeds"]) > 1:                     
-            if len(r.json()["feeds"]) < 8000:
-                print("All items returned")
-                return responses
-            # Else if a start date is passed, calculate a new start date and continue
-            elif bool(start_date) == True:
-                start_date = get_date(r, "start")
-                continue
-            # Else calculate a new end date and continue
-            else:
-                end_date = get_date(r, "end")
-                continue
-        # Raise an assertion error if no responses are returned
+        #if len(r.json()["feeds"]) > 1:                     
+        if len(r.json()["feeds"]) < 8000:
+            print("All items returned")
+            return responses
+        # Else if a start date is passed, calculate a new start date and continue
+        elif bool(start_date) == True:
+            start_date = get_date(r, "start")
+            continue
+        # Else calculate a new end date and continue
         else:
-            raise AssertionError
+            end_date = get_date(r, "end")
+            continue
 
 def get_headers(feeds, responses):
     """Gets feed headers from the responses and renames DataFrame columns to match
@@ -218,7 +212,7 @@ def get_date(response, pos):
     return date.strftime("%Y-%m-%d%%20%H:%M:%S")
 
 
-def get_pollution(feeds):
+def get_pollution(id, feeds):
     """Takes a cached dual sensor DataFrame, extracts sensor data and
     returns a tidy DataFrame.
 
@@ -259,12 +253,14 @@ def get_pollution(feeds):
     split = pm_df["sensor"].str.split(" ", 1, expand=True)
     pm_df.insert(1, column="pollutiontype", value=split[1])
     pm_df.insert(1, column="sensortype", value=split[0])
+    pm_df.insert(0, column="sensor_id", value=id)
     pm_df = pm_df.drop("sensor", axis=1)
     
     # Reindex DataFrame hierarchically 
-    pm_df = pm_df.set_index(["created_at", 
-                         "sensortype", 
-                         "pollutiontype"])["value"].unstack()
+    pm_df = pm_df.set_index(["sensor_id",
+                             "created_at", 
+                             "sensortype", 
+                             "pollutiontype"])["value"].unstack()
     pm_df.columns.name = ""
     
     return pm_df
