@@ -9,5 +9,5 @@ setup(
   url = 'https://github.com/DennisReddyhoff/AirQo.git',
   keywords = ['airqo'],
   classifiers = [],
-  install_requires=['requests', 'json', 'pandas', 'time', 'datetime', 'dateutil.parser', 'fnmatch'],
+  install_requires=['requests', 'pandas'],
 )
