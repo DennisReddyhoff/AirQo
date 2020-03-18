@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: get-dataframe
+Version: 0.0.1
+Summary: Package to pull down and cache data from AirQo sensor APIs
+Home-page: https://github.com/DennisReddyhoff/AirQo
+Author: Dennis Reddyhoff
+Author-email: d.reddyhoff@sheffield.ac.uk
+License: UNKNOWN
+Description: Working version of package to pulldown and cache AirQo sensor data
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
