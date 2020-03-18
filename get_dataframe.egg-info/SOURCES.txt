@@ -1,7 +1,0 @@
-README.md
-setup.py
-get_dataframe.egg-info/PKG-INFO
-get_dataframe.egg-info/SOURCES.txt
-get_dataframe.egg-info/dependency_links.txt
-get_dataframe.egg-info/top_level.txt
-package/__init__.py
