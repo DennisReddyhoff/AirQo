@@ -1,7 +1,7 @@
 from distutils.core import setup
 setup(
-  name = 'get_dataframe',
-  packages = ['get_dataframe'], # this must be the same as the name above
+  name = 'getdataframe',
+  packages = ['getdataframe'], # this must be the same as the name above
   version = '1.0',
   description = 'Download and cache data from AirQo sensors',
   author = 'Dennis Reddyhoff',
