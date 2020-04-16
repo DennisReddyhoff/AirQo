@@ -5,11 +5,21 @@ from getmap import getmap
 import numpy as np
 from bokeh.embed import file_html
 from bokeh.resources import CDN
-#from scipy import interpolate
+import time
+import threading
+
 app = Flask(__name__)
 
-predmeans, predvars, Xtest = gpmodel()
-mean_interp, var_interp = interp(predmeans, predvars, Xtest)
+def run_models():
+    global mean_interp, var_interp
+    
+    while True:
+        predmeans, predvars, Xtest = gpmodel()
+        temp_interp = interp(predmeans, predvars, Xtest)
+        mean_interp, var_interp = temp_interp
+        time.sleep(3600)
+        
+threading.Thread(target=run_models).start()        
 
 @app.route('/api',methods=['GET', 'POST'])
 def main():
