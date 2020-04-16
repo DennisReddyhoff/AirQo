@@ -12,8 +12,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
-from scipy import interpolate
-import numpy as np
+
 
 def merc(lon, lat):
     ''' Get mercator projection co-ordinates from latitude and logitude'''

@@ -1,5 +1,6 @@
 from gpmodel import gpmodel
 from interpolate import interp, lonlat, getgrid
+from getresponse import getresponse
 from flask import Flask, jsonify, request, render_template
 from getmap import getmap
 import numpy as np
@@ -14,41 +15,20 @@ def run_models():
     global mean_interp, var_interp
     
     while True:
+        print("* Updating GP model *")
         predmeans, predvars, Xtest = gpmodel()
         temp_interp = interp(predmeans, predvars, Xtest)
+        print("* Updating interpolator *")
         mean_interp, var_interp = temp_interp
+        print("* Sleeping for 1 hour *")
         time.sleep(3600)
         
-threading.Thread(target=run_models).start()        
+threading.Thread(target=run_models, name="interpolator", daemon=True).start()        
 
 @app.route('/api',methods=['GET', 'POST'])
-def main():
-        
-    xstart = float(request.args["xstart"])
-    xend = float(request.args["xend"])
-    ystart = float(request.args["ystart"])
-    yend = float(request.args["yend"])
-    gridsize = int(request.args["gridsize"])
-    
-    xnew = np.linspace(xstart, xend, gridsize)
-    ynew = np.linspace(ystart, yend, gridsize)
-    xgrid, ygrid = np.meshgrid(xnew,ynew)
-    xgrid = xgrid.reshape(np.square(gridsize)).tolist()
-    ygrid = ygrid.reshape(np.square(gridsize)).tolist()
-    
-    lon, lat = lonlat(xgrid, ygrid)
-    means = mean_interp(xnew,ynew)
-    vars = var_interp(xnew,ynew)
-    sizes = 150*np.log(1 + 300/np.sqrt(vars.reshape(np.square(gridsize)).tolist()))
-    
-    
-    return jsonify({"xgrid": xgrid,
-                    "ygrid": ygrid,
-                    "means": means.reshape(np.square(gridsize)).tolist(),
-                    "vars": vars.reshape(np.square(gridsize)).tolist(),
-                    "lon": lon,
-                    "lat": lat,
-                    "sizes": sizes.tolist()})
+def main():        
+    response = getresponse(request, mean_interp, var_interp)        
+    return jsonify(response)
 
 @app.route('/')
 def showmap():
