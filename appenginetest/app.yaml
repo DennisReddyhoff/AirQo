@@ -1,0 +1,5 @@
+runtime: python37
+service: error-test
+resources:
+    disk_size_gb: 100
+    memory_gb: 32
